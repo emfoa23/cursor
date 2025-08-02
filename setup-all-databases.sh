@@ -2,15 +2,11 @@
 
 # 모든 데이터베이스 Docker 컨테이너 설정 스크립트
 
-echo "🗄️  모든 데이터베이스 설정"
-echo "================================"
-
 echo "설정할 데이터베이스를 선택하세요:"
 echo "1. MySQL"
 echo "2. MongoDB"
 echo "3. Redis"
 echo "4. 모든 데이터베이스"
-echo "5. 종료"
 
 echo ""
 read -p "선택하세요 (1-5): " choice
@@ -41,10 +37,6 @@ case $choice in
         ./scripts/setup-redis.sh
         echo ""
         echo "✅ 모든 데이터베이스 설정 완료!"
-        ;;
-    5)
-        echo "종료합니다."
-        exit 0
         ;;
     *)
         echo "잘못된 선택입니다."

@@ -1,0 +1,66 @@
+name: Setup Databases
+
+on:
+  workflow_dispatch:
+    inputs:
+      database_choice:
+        description: '데이터베이스 선택 (1: MySQL, 2: MongoDB, 3: Redis, 4: 모든 데이터베이스)'
+        required: true
+        default: '4'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+      password:
+        description: '비밀번호'
+        required: false
+        default: 'password'
+        type: string
+      database:
+        description: '데이터베이스 이름'
+        required: false
+        default: 'testdb'
+        type: string
+
+jobs:
+  setup-databases:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x setup-all-databases.sh
+        chmod +x scripts/*.sh
+        
+    - name: Setup databases
+      env:
+        PASSWORD: ${{ github.event.inputs.password }}
+        DATABASE: ${{ github.event.inputs.database }}
+      run: |
+        # setup-all-databases.sh 실행을 위한 입력 준비
+        case ${{ github.event.inputs.database_choice }} in
+          "1")
+            # MySQL만 실행
+            printf "%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
+            ;;
+          "2")
+            # MongoDB만 실행
+            printf "%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
+            ;;
+          "3")
+            # Redis만 실행
+            printf ${{ github.event.inputs.database_choice }} |./setup-all-databases.sh
+            ;;
+          "4")
+            # 모든 데이터베이스 실행
+            printf "%s\n%s\n%s\n%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
+            ;;
+        esac
