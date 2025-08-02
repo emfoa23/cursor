@@ -1,0 +1,29 @@
+name: Scheduled Task
+
+on:
+  schedule:
+    # 1분마다 실행 (매분 0초에 실행)
+    - cron: '* * * * *'
+  workflow_dispatch: # 수동 실행도 가능하도록 설정
+
+jobs:
+  echo-time:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Echo current time
+      run: |
+        echo "Current time: $(date)"
+        echo "GitHub Actions run at: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+        echo "Workflow run ID: ${{ github.run_id }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref_name }}"
+        
+    - name: Show environment info
+      run: |
+        echo "Runner OS: $(uname -s)"
+        echo "Runner Architecture: $(uname -m)"
+        echo "Working Directory: $(pwd)" 
