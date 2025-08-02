@@ -17,7 +17,8 @@ jobs:
     - name: Echo current time
       run: |
         echo "Current time: $(date)"
-        echo "GitHub Actions run at: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+        echo "GitHub Actions run at: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+        echo "Local timezone: $(date +%Z)"
         echo "Workflow run ID: ${{ github.run_id }}"
         echo "Repository: ${{ github.repository }}"
         echo "Branch: ${{ github.ref_name }}"
