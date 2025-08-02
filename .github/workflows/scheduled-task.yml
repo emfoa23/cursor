@@ -2,8 +2,8 @@ name: Scheduled Task
 
 on:
   schedule:
-    # 1분마다 실행 (매분 0초에 실행)
-    - cron: '* * * * *'
+    # 5분마다 실행 (매 5분마다 실행)
+    - cron: '*/5 * * * *'
   workflow_dispatch: # 수동 실행도 가능하도록 설정
 
 jobs:
