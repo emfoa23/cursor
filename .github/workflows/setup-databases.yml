@@ -1,4 +1,4 @@
-name: Setup Databases
+name: Setup Databases on EC2
 
 on:
   workflow_dispatch:
@@ -32,35 +32,57 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v3
+    - name: Copy files to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        source: "setup-all-databases.sh,scripts/"
+        target: "/home/ec2-user/"
+        strip_components: 0
       
-    - name: Make scripts executable
-      run: |
-        chmod +x setup-all-databases.sh
-        chmod +x scripts/*.sh
-        
-    - name: Setup databases
-      env:
-        PASSWORD: ${{ github.event.inputs.password }}
-        DATABASE: ${{ github.event.inputs.database }}
-      run: |
-        # setup-all-databases.sh 실행을 위한 입력 준비
-        case ${{ github.event.inputs.database_choice }} in
-          "1")
-            # MySQL만 실행
-            printf "%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
-            ;;
-          "2")
-            # MongoDB만 실행
-            printf "%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
-            ;;
-          "3")
-            # Redis만 실행
-            printf ${{ github.event.inputs.database_choice }} |./setup-all-databases.sh
-            ;;
-          "4")
-            # 모든 데이터베이스 실행
-            printf "%s\n%s\n%s\n%s\n%s\n" ${{ github.event.inputs.database_choice }} "$PASSWORD" "$DATABASE" "$PASSWORD" "$DATABASE" | ./setup-all-databases.sh
-            ;;
-        esac
+    - name: Setup databases on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          set -e  # 스크립트에서 오류 발생 시 즉시 종료
+          
+          echo "🚀 데이터베이스 설정 프로세스 시작..."
+          
+          echo "📁 스크립트 권한 설정 중..."
+          chmod +x /home/ec2-user/setup-all-databases.sh
+          chmod +x /home/ec2-user/scripts/*.sh
+          
+          echo "🔧 데이터베이스 설정 시작..."
+          cd /home/ec2-user
+          
+          # 사용자 입력에 따른 데이터베이스 설정 실행
+          case "${{ github.event.inputs.database_choice }}" in
+            "1")
+              echo "🐬 MySQL 설정 중..."
+              printf "%s\n%s\n%s\n" "${{ github.event.inputs.database_choice }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.database }}" | ./setup-all-databases.sh
+              ;;
+            "2")
+              echo "🍃 MongoDB 설정 중..."
+              printf "%s\n%s\n%s\n" "${{ github.event.inputs.database_choice }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.database }}" | ./setup-all-databases.sh
+              ;;
+            "3")
+              echo "🔴 Redis 설정 중..."
+              printf "%s\n" "${{ github.event.inputs.database_choice }}" | ./setup-all-databases.sh
+              ;;
+            "4")
+              echo "🌟 모든 데이터베이스 설정 중..."
+              printf "%s\n%s\n%s\n%s\n%s\n" "${{ github.event.inputs.database_choice }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.database }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.database }}" | ./setup-all-databases.sh
+              ;;
+          esac
+          
+          echo "🔍 컨테이너 상태 확인 중..."
+          docker ps
+          
+          echo "🎉 데이터베이스 설정이 완료되었습니다!"

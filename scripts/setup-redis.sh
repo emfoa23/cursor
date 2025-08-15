@@ -24,7 +24,7 @@ docker run -d \
 # 컨테이너 시작 대기
 echo ""
 echo "⏳ Redis가 시작될 때까지 기다리는 중..."
-sleep 5
+sleep 30
 
 # 연결 테스트
 echo ""

@@ -90,7 +90,9 @@ if [[ "$selected_file" == "setup-databases.yml" ]]; then
         --container-architecture linux/amd64 \
         --input database_choice="$database_choice" \
         --input password=password \
-        --input database=database
+        --input database=database \
+        --secret EC2_HOST="ec2-52-79-235-135.ap-northeast-2.compute.amazonaws.com" \
+        --secret EC2_SSH_KEY="$(cat ~/.ssh/brian_aws.pem)"
 else
     # 다른 워크플로우의 경우 파라미터 없이 실행
     echo ""

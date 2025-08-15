@@ -36,7 +36,7 @@ docker run -d \
 # 컨테이너 시작 대기
 echo ""
 echo "⏳ MongoDB가 시작될 때까지 기다리는 중..."
-sleep 5
+sleep 30
 
 # 연결 테스트 및 데이터베이스 생성 테스트
 echo ""
